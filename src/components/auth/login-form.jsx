@@ -1,52 +1,70 @@
-'use client'
-import { useActionState } from 'react'
-import { login } from '@/lib/actions'
+"use client";
 
-export default function LoginForm({ className }) {
-    const [state, action, pending] = useActionState(login, null)
+import { useState } from "react";
+import { useFormStatus } from "react-dom";
+import { login } from "@/src/actions/auth-actions";
+import { CardWrapper } from "@/src/components/auth/card-wrapper";
+import { Input } from "@/src/components/ui/input";
+import { Button } from "@/src/components/ui/button";
+import { Label } from "@/src/components/ui/label";
+
+function SubmitButton() {
+    const { pending } = useFormStatus();
 
     return (
-        <form action={action} className={className}>
-            <h2 className="text-2xl font-bold mb-4">Iniciar Sesión</h2>
-
-            <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Correo Electrónico</label>
-                <input
-                    type="email"
-                    name="email"
-                    defaultValue={state?.fields?.email}
-                    placeholder="tu@email.com"
-                    className="w-full p-2 border rounded"
-                    required
-                />
-            </div>
-
-            <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Contraseña</label>
-                <input
-                    type="password"
-                    name="contraseña"
-                    placeholder="••••••••"
-                    className="w-full p-2 border rounded"
-                    required
-                />
-            </div>
-
-            {state?.error && (
-                <p className="text-red-500 text-sm mb-4">{state.error}</p>
-            )}
-
-            {state?.success && (
-                <p className="text-green-500 text-sm mb-4">{state.success}</p>
-            )}
-
-            <button
-                type="submit"
-                disabled={pending}
-                className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
-            >
-                {pending ? 'Iniciando sesión...' : 'Entrar'}
-            </button>
-        </form>
-    )
+        <Button disabled={pending} type="submit" className="w-full">
+            {pending ? "Entrando..." : "Iniciar sesión"}
+        </Button>
+    );
 }
+
+export const LoginForm = () => {
+    const [error, setError] = useState("");
+
+    async function handleSubmit(formData) {
+        const result = await login(null, formData);
+        if (result?.error) {
+            setError(result.error);
+        }
+    }
+
+    return (
+        <CardWrapper
+            headerLabel="Bienvenido de nuevo"
+            backButtonLabel="¿No tienes una cuenta?"
+            backButtonHref="/auth/register"
+            showSocial
+        >
+            <form action={handleSubmit} className="space-y-6">
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            placeholder="ejemplo@correo.com"
+                            required
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="password">Contraseña</Label>
+                        <Input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="******"
+                            required
+                        />
+                    </div>
+                </div>
+                {error && (
+                    <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive">
+                        <p>{error}</p>
+                    </div>
+                )}
+                <SubmitButton />
+            </form>
+        </CardWrapper>
+    );
+};

@@ -1,64 +1,79 @@
-'use client'
-import { useActionState } from 'react'
-import { register } from '@/lib/actions'
+"use client";
 
-export default function RegisterForm({ className }) {
-    const [state, action, pending] = useActionState(register, null)
+import { useState } from "react";
+import { useFormStatus } from "react-dom";
+import { register } from "@/src/actions/auth-actions";
+import { CardWrapper } from "@/src/components/auth/card-wrapper";
+import { Input } from "@/src/components/ui/input";
+import { Button } from "@/src/components/ui/button";
+import { Label } from "@/src/components/ui/label";
+
+function SubmitButton() {
+    const { pending } = useFormStatus();
 
     return (
-        <form action={action} className={className}>
-            <h2 className="text-2xl font-bold mb-4">Crear Cuenta</h2>
-
-            <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Nombre Completo</label>
-                <input
-                    type="text"
-                    name="nombre"
-                    defaultValue={state?.fields?.name}
-                    placeholder="Juan Pérez"
-                    className="w-full p-2 border rounded"
-                    required
-                />
-            </div>
-
-            <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Correo Electrónico</label>
-                <input
-                    type="email"
-                    name="email"
-                    defaultValue={state?.fields?.email}
-                    placeholder="tu@email.com"
-                    className="w-full p-2 border rounded"
-                    required
-                />
-            </div>
-
-            <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Contraseña</label>
-                <input
-                    type="password"
-                    name="contraseña"
-                    placeholder="••••••••"
-                    className="w-full p-2 border rounded"
-                    required
-                />
-            </div>
-
-            {state?.error && (
-                <p className="text-red-500 text-sm mb-4">{state.error}</p>
-            )}
-
-            {state?.success && (
-                <p className="text-green-500 text-sm mb-4">{state.success}</p>
-            )}
-
-            <button
-                type="submit"
-                disabled={pending}
-                className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 disabled:bg-gray-400"
-            >
-                {pending ? 'Registrando...' : 'Crear Cuenta'}
-            </button>
-        </form>
-    )
+        <Button disabled={pending} type="submit" className="w-full">
+            {pending ? "Registrando..." : "Crear cuenta"}
+        </Button>
+    );
 }
+
+export const RegisterForm = () => {
+    const [error, setError] = useState("");
+
+    const handleSubmit = async (formData) => {
+        const result = await register(null, formData);
+        if (result?.error) {
+            setError(result.error);
+        }
+    };
+
+    return (
+        <CardWrapper
+            headerLabel="Crear una cuenta"
+            backButtonLabel="¿Ya tienes una cuenta?"
+            backButtonHref="/auth/login"
+            showSocial
+        >
+            <form action={handleSubmit} className="space-y-6">
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Nombre</Label>
+                        <Input
+                            id="name"
+                            name="name"
+                            placeholder="Tu nombre"
+                            required
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            placeholder="ejemplo@correo.com"
+                            required
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="password">Contraseña</Label>
+                        <Input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="******"
+                            required
+                        />
+                    </div>
+                </div>
+                {error && (
+                    <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive">
+                        <p>{error}</p>
+                    </div>
+                )}
+                <SubmitButton />
+            </form>
+        </CardWrapper>
+    );
+};

@@ -1,49 +1,38 @@
-import NextAuth from "next-auth"
-import prisma from "@/lib/prisma"
+import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { obtenerUsuarioPorId } from "@/lib/data"
-import authConfig from "@/auth.config"
+import { db } from "@/src/lib/prisma";
+import { authConfig } from "@/src/auth.config";
+import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 
-export const opciones = {
-    session: { strategy: 'jwt' },
-    adapter: PrismaAdapter(prisma),
-    pages: {
-        signIn: '/auth/iniciar-sesion',
-        signOut: '/auth/cerrar-sesion',
-        error: '/auth/error'
-    },
-    events: {
-        async linkAccount({ user }) {
-            await prisma.user.update({
-                where: { id: user.id },
-                data: { emailVerified: new Date() }
-            })
-        }
-    },
-    callbacks: {
-        async session({ session, token }) {
-            // Recuperar ID de usuario desde el token
-            session.user.id = token?.sub;
-            // Recuperar rol de usuario desde el token
-            session.user.role = token?.role
-            return session
-        },
+export const { handlers, auth, signIn, signOut } = NextAuth({
+    ...authConfig,
+    adapter: PrismaAdapter(db),
+    session: { strategy: "jwt" },
+    providers: [
+        GitHub,
+        Google,
+        Credentials({
+            async authorize(credentials) {
+                if (!credentials?.email || !credentials?.password) return null;
 
-        async jwt({ token }) {
-            if (!token.sub) return token;
+                const user = await db.user.findUnique({
+                    where: { email: credentials.email },
+                });
 
-            const usuario = await obtenerUsuarioPorId(token.sub)
-            if (!usuario) return token;
+                if (!user || !user.password) return null; // No password = possible OAuth user without password
 
-            token.role = usuario?.role
-            return token
-        }
-    },
-}
+                const passwordsMatch = await bcrypt.compare(
+                    credentials.password,
+                    user.password
+                );
 
-export const {
-    handlers: { GET, POST },
-    auth,
-    signIn,
-    signOut
-} = NextAuth({ ...opciones, ...authConfig })
+                if (passwordsMatch) return user;
+
+                return null;
+            },
+        }),
+    ],
+});

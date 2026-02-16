@@ -1,19 +1,36 @@
-import Google from "@auth/core/providers/google"
-import GitHub from '@auth/core/providers/github'
-import Discord from '@auth/core/providers/discord'
-import Credentials from "@auth/core/providers/credentials"
-import { obtenerUsuarioPorEmail } from "@/lib/data"
+export const authConfig = {
+    pages: {
+        signIn: "/auth/login",
+        error: "/auth/error",
+    },
+    callbacks: {
+        authorized({ auth, request: { nextUrl } }) {
+            const isLoggedIn = !!auth?.user;
+            const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
 
-export default {
-    providers: [
-        Google,
-        GitHub,
-        Discord,
-        Credentials({
-            async authorize(credenciales) {
-                const usuario = await obtenerUsuarioPorEmail(credenciales.email)
-                return usuario
-            },
-        }),
-    ]
-}
+            if (isOnDashboard) {
+                if (isLoggedIn) return true;
+                return false; // Redirect unauthenticated users to login page
+            } else if (isLoggedIn && (nextUrl.pathname === "/auth/login" || nextUrl.pathname === "/auth/register")) {
+                return Response.redirect(new URL("/dashboard", nextUrl));
+            }
+            return true;
+        },
+        async session({ session, token }) {
+            if (token.sub && session.user) {
+                session.user.id = token.sub;
+            }
+            if (token.role && session.user) {
+                session.user.role = token.role;
+            }
+            return session;
+        },
+        async jwt({ token, user, trigger, session }) {
+            if (user) {
+                token.role = user.role;
+            }
+            return token;
+        }
+    },
+    providers: [], // Providers added in auth.js to avoid edge incompatibility
+};
