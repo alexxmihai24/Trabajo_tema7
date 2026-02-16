@@ -4,6 +4,7 @@ import { db } from "@/src/lib/prisma";
 import { authConfig } from "@/src/auth.config";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import Discord from "next-auth/providers/discord";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
@@ -14,6 +15,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     providers: [
         GitHub,
         Google,
+        Discord,
         Credentials({
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) return null;

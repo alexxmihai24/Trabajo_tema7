@@ -26,6 +26,15 @@ export const Social = () => {
                 <Github className="h-5 w-5 mr-2" />
                 Github
             </Button>
+            <Button
+                size="lg"
+                className="w-full"
+                variant="outline"
+                onClick={() => socialLogin("discord")}
+            >
+                <span className="mr-2">D</span>
+                Discord
+            </Button>
         </div>
     );
 };
