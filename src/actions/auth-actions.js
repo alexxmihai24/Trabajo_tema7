@@ -13,9 +13,9 @@ export async function login(prevState, formData) {
         if (error instanceof AuthError) {
             switch (error.type) {
                 case "CredentialsSignin":
-                    return "Credenciales inválidas.";
+                    return { error: "Credenciales inválidas." };
                 default:
-                    return "Algo salió mal.";
+                    return { error: "Algo salió mal." };
             }
         }
         throw error;
@@ -28,7 +28,7 @@ export async function register(prevState, formData) {
     const password = formData.get("password");
 
     if (!name || !email || !password) {
-        return "Todos los campos son obligatorios.";
+        return { error: "Todos los campos son obligatorios." };
     }
 
     try {
@@ -37,7 +37,7 @@ export async function register(prevState, formData) {
         });
 
         if (existingUser) {
-            return "El correo electrónico ya está registrado.";
+            return { error: "El correo electrónico ya está registrado." };
         }
 
         const hashedPassword = await bcrypt.hash(password.toString(), 10);
@@ -50,7 +50,7 @@ export async function register(prevState, formData) {
             },
         });
     } catch (error) {
-        return "Error al crear la cuenta.";
+        return { error: "Error al crear la cuenta." };
     }
 
     redirect("/auth/login?success=true");
