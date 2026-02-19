@@ -7,13 +7,30 @@ export const authConfig = {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
             const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
+            const isOnAdmin = nextUrl.pathname.startsWith("/admin");
+            const isAuthPage =
+                nextUrl.pathname === "/auth/login" ||
+                nextUrl.pathname === "/auth/register";
 
+            // Protect /admin — ADMIN only
+            if (isOnAdmin) {
+                if (!isLoggedIn) return false;
+                if (auth?.user?.role !== "ADMIN")
+                    return Response.redirect(new URL("/dashboard", nextUrl));
+                return true;
+            }
+
+            // Protect /dashboard — any authenticated user
             if (isOnDashboard) {
                 if (isLoggedIn) return true;
-                return false; // Redirect unauthenticated users to login page
-            } else if (isLoggedIn && (nextUrl.pathname === "/auth/login" || nextUrl.pathname === "/auth/register")) {
+                return false; // redirect to login
+            }
+
+            // Redirect logged-in users away from login/register pages
+            if (isLoggedIn && isAuthPage) {
                 return Response.redirect(new URL("/dashboard", nextUrl));
             }
+
             return true;
         },
         async session({ session, token }) {
@@ -25,7 +42,7 @@ export const authConfig = {
             }
             return session;
         },
-        async jwt({ token, user, trigger, session }) {
+        async jwt({ token, user }) {
             if (user) {
                 token.role = user.role;
             }
@@ -34,3 +51,4 @@ export const authConfig = {
     },
     providers: [], // Providers added in auth.js to avoid edge incompatibility
 };
+

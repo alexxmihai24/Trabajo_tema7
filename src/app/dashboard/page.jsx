@@ -1,10 +1,17 @@
 import { auth, signOut } from "@/src/auth";
+import { db } from "@/src/lib/prisma";
 import { Button } from "@/src/components/ui/button";
 import { UserInfo } from "@/src/components/dashboard/user-info";
 import { AdminPanel } from "@/src/components/dashboard/admin-panel";
 
 const DashboardPage = async () => {
     const session = await auth();
+    const isAdmin = session?.user?.role === "ADMIN";
+
+    // Obtener todos los usuarios solo si es admin
+    const users = isAdmin
+        ? await db.user.findMany({ orderBy: { name: "asc" } })
+        : [];
 
     return (
         <div className="flex flex-col min-h-screen bg-muted/40 font-sans">
@@ -21,6 +28,9 @@ const DashboardPage = async () => {
                             <div className="text-sm text-muted-foreground hidden md:block">
                                 {session?.user?.email}
                             </div>
+                            <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-semibold">
+                                {session?.user?.role}
+                            </span>
                             <form action={async () => {
                                 "use server";
                                 await signOut({ redirectTo: "/" });
@@ -38,24 +48,21 @@ const DashboardPage = async () => {
                 <header className="flex flex-col gap-2">
                     <h1 className="text-3xl font-bold tracking-tight">Hola, {session?.user?.name}</h1>
                     <p className="text-muted-foreground">
-                        Bienvenido a tu panel de control {session?.user?.role === "ADMIN" ? "de administrador" : "personal"}.
+                        Bienvenido a tu panel de control {isAdmin ? "de administrador" : "personal"}.
                     </p>
                 </header>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* User Info - Takes 1 column on large screens */}
+                    {/* User Info - columna izquierda */}
                     <div className="lg:col-span-1 space-y-6">
                         <UserInfo user={session?.user} />
                     </div>
 
-                    {/* Admin Panel - Takes 2 columns on large screens if admin */}
-                    {session?.user?.role === "ADMIN" && (
-                        <div className="lg:col-span-2 space-y-6">
-                            <AdminPanel />
-                        </div>
-                    )}
-                    {session?.user?.role !== "ADMIN" && (
-                        <div className="lg:col-span-2 space-y-6">
+                    {/* Columna derecha: Admin Panel o mensaje */}
+                    <div className="lg:col-span-2 space-y-6">
+                        {isAdmin ? (
+                            <AdminPanel users={users} />
+                        ) : (
                             <div className="bg-card rounded-xl border p-8 text-center space-y-4">
                                 <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary text-2xl">
                                     👋
@@ -65,8 +72,8 @@ const DashboardPage = async () => {
                                     Tu cuenta está activa. Como usuario estándar, puedes ver y editar tu información básica en la columna de la izquierda.
                                 </p>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </main>
         </div>
@@ -74,3 +81,4 @@ const DashboardPage = async () => {
 }
 
 export default DashboardPage;
+

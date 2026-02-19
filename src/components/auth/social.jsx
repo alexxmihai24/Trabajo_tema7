@@ -1,10 +1,18 @@
 "use client";
 
+import { useTransition } from "react";
 import { Github } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { socialLogin } from "@/src/actions/auth-actions";
 
 export const Social = () => {
+    const [isPending, startTransition] = useTransition();
+
+    const handleSocialLogin = (provider) => {
+        startTransition(() => {
+            socialLogin(provider);
+        });
+    };
 
     return (
         <div className="flex w-full items-center gap-x-2">
@@ -12,7 +20,8 @@ export const Social = () => {
                 size="lg"
                 className="w-full"
                 variant="outline"
-                onClick={() => socialLogin("google")}
+                onClick={() => handleSocialLogin("google")}
+                disabled={isPending}
             >
                 <span className="mr-2">G</span>
                 Google
@@ -21,7 +30,8 @@ export const Social = () => {
                 size="lg"
                 className="w-full"
                 variant="outline"
-                onClick={() => socialLogin("github")}
+                onClick={() => handleSocialLogin("github")}
+                disabled={isPending}
             >
                 <Github className="h-5 w-5 mr-2" />
                 Github
@@ -30,7 +40,8 @@ export const Social = () => {
                 size="lg"
                 className="w-full"
                 variant="outline"
-                onClick={() => socialLogin("discord")}
+                onClick={() => handleSocialLogin("discord")}
+                disabled={isPending}
             >
                 <span className="mr-2">D</span>
                 Discord
