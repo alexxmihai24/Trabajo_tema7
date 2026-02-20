@@ -37,3 +37,29 @@ model Account {
 
     @@unique([provider, providerAccountId])
 }
+
+model Grupo {
+    id          Int          @id @default(autoincrement())
+    nombre      String       @unique
+    tutor       String
+    aula        String
+    estudiantes Estudiante[]
+}
+
+model Estudiante {
+    id              Int          @id @default(autoincrement())
+    nombre          String
+    fechaNacimiento DateTime
+    tutorLegal      String
+    asignaturas     Asignatura[]
+    grupoId         Int?
+    grupo           Grupo?       @relation(fields: [grupoId], references: [id])
+}
+
+model Asignatura {
+    id          Int          @id @default(autoincrement())
+    nombre      String
+    profesor    String?
+    horasSemana Int
+    estudiantes Estudiante[]
+}

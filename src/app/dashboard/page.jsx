@@ -1,84 +1,73 @@
-import { auth, signOut } from "@/src/auth";
+import { auth } from "@/src/auth";
 import { db } from "@/src/lib/prisma";
-import { Button } from "@/src/components/ui/button";
 import { UserInfo } from "@/src/components/dashboard/user-info";
 import { AdminPanel } from "@/src/components/dashboard/admin-panel";
+import { Users, GraduationCap, BookOpen, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
-const DashboardPage = async () => {
+export const metadata = { title: "Dashboard" };
+
+export default async function DashboardPage() {
     const session = await auth();
     const isAdmin = session?.user?.role === "ADMIN";
 
-    // Obtener todos los usuarios solo si es admin
-    const users = isAdmin
-        ? await db.user.findMany({ orderBy: { name: "asc" } })
-        : [];
+    const [grupos, estudiantes, asignaturas, users] = await Promise.all([
+        db.grupo.count(),
+        db.estudiante.count(),
+        db.asignatura.count(),
+        isAdmin ? db.user.findMany({ orderBy: { name: "asc" } }) : Promise.resolve([]),
+    ]);
+
+    const stats = [
+        { label: "Grupos", value: grupos, icon: Users, href: "/dashboard/grupos", color: "text-blue-600 bg-blue-100" },
+        { label: "Estudiantes", value: estudiantes, icon: GraduationCap, href: "/dashboard/estudiantes", color: "text-purple-600 bg-purple-100" },
+        { label: "Asignaturas", value: asignaturas, icon: BookOpen, href: "/dashboard/asignaturas", color: "text-green-600 bg-green-100" },
+        ...(isAdmin ? [{ label: "Usuarios", value: users.length, icon: ShieldCheck, href: "/admin", color: "text-amber-600 bg-amber-100" }] : []),
+    ];
 
     return (
-        <div className="flex flex-col min-h-screen bg-muted/40 font-sans">
-            <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16 items-center">
-                        <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold">
-                                {session?.user?.name?.[0] || "U"}
-                            </div>
-                            <span className="font-bold text-lg tracking-tight">Dashboard</span>
+        <div className="space-y-8">
+            <header>
+                <h1 className="text-2xl font-bold tracking-tight">Hola, {session?.user?.name} 👋</h1>
+                <p className="text-muted-foreground text-sm mt-1">
+                    Bienvenido a tu panel {isAdmin ? "de administrador" : "de usuario"}.
+                </p>
+            </header>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {stats.map(({ label, value, icon: Icon, href, color }) => (
+                    <Link key={label} href={href} className="rounded-xl border bg-card p-5 space-y-3 hover:shadow-md transition-shadow">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${color}`}>
+                            <Icon className="h-5 w-5" />
                         </div>
-                        <div className="flex items-center gap-4">
-                            <div className="text-sm text-muted-foreground hidden md:block">
-                                {session?.user?.email}
-                            </div>
-                            <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-semibold">
-                                {session?.user?.role}
-                            </span>
-                            <form action={async () => {
-                                "use server";
-                                await signOut({ redirectTo: "/" });
-                            }}>
-                                <Button type="submit" variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
-                                    Cerrar Sesión
-                                </Button>
-                            </form>
+                        <div>
+                            <p className="text-2xl font-bold">{value}</p>
+                            <p className="text-sm text-muted-foreground">{label}</p>
                         </div>
-                    </div>
+                    </Link>
+                ))}
+            </div>
+
+            {/* Two columns: user info + admin panel or welcome */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1">
+                    <UserInfo user={session?.user} />
                 </div>
-            </nav>
-
-            <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
-                <header className="flex flex-col gap-2">
-                    <h1 className="text-3xl font-bold tracking-tight">Hola, {session?.user?.name}</h1>
-                    <p className="text-muted-foreground">
-                        Bienvenido a tu panel de control {isAdmin ? "de administrador" : "personal"}.
-                    </p>
-                </header>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* User Info - columna izquierda */}
-                    <div className="lg:col-span-1 space-y-6">
-                        <UserInfo user={session?.user} />
-                    </div>
-
-                    {/* Columna derecha: Admin Panel o mensaje */}
-                    <div className="lg:col-span-2 space-y-6">
-                        {isAdmin ? (
-                            <AdminPanel users={users} />
-                        ) : (
-                            <div className="bg-card rounded-xl border p-8 text-center space-y-4">
-                                <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary text-2xl">
-                                    👋
-                                </div>
-                                <h3 className="text-lg font-semibold">¡Todo listo!</h3>
-                                <p className="text-muted-foreground max-w-sm mx-auto">
-                                    Tu cuenta está activa. Como usuario estándar, puedes ver y editar tu información básica en la columna de la izquierda.
-                                </p>
-                            </div>
-                        )}
-                    </div>
+                <div className="lg:col-span-2">
+                    {isAdmin ? (
+                        <AdminPanel users={users} />
+                    ) : (
+                        <div className="rounded-xl border bg-card p-8 text-center space-y-3 h-full flex flex-col items-center justify-center">
+                            <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary text-3xl">📚</div>
+                            <h3 className="text-lg font-semibold">Explora el centro</h3>
+                            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+                                Usa el menú lateral para ver grupos, estudiantes y asignaturas.
+                            </p>
+                        </div>
+                    )}
                 </div>
-            </main>
+            </div>
         </div>
     );
 }
-
-export default DashboardPage;
-
