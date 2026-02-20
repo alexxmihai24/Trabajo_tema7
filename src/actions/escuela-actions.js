@@ -130,3 +130,32 @@ export async function eliminarEstudiante(id) {
         return { error: "Error al eliminar estudiante" };
     }
 }
+
+export async function editarEstudiante(prevState, formData) {
+    try {
+        await checkAdmin();
+        const id = Number(formData.get("id"));
+        const nombre = formData.get("nombre");
+        const tutorLegal = formData.get("tutorLegal");
+        const fechaNacimiento = new Date(formData.get("fechaNacimiento"));
+        const grupoId = formData.get("grupoId") ? Number(formData.get("grupoId")) : null;
+        const asignaturaIds = formData.getAll("asignaturaIds").map(Number).filter(Boolean);
+
+        await db.estudiante.update({
+            where: { id },
+            data: {
+                nombre,
+                tutorLegal,
+                fechaNacimiento,
+                grupoId,
+                asignaturas: {
+                    set: asignaturaIds.map((aid) => ({ id: aid })),
+                },
+            },
+        });
+        revalidatePath("/dashboard/estudiantes");
+        return { success: "Estudiante actualizado" };
+    } catch (e) {
+        return { error: "Error al actualizar estudiante" };
+    }
+}
