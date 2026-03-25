@@ -13,7 +13,7 @@ async function EstudianteFormCreate() {
     return (
         <form action={crearEstudiante} className="space-y-4">
             <h2 className="text-lg font-bold">Nuevo Estudiante</h2>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="col-span-2 space-y-1">
                     <label className="text-sm font-medium">Nombre completo</label>
                     <input name="nombre" required placeholder="ej: Ana García" className="w-full rounded-md border px-3 py-2 text-sm" />
@@ -64,7 +64,7 @@ async function EstudianteFormEdit({ estudiante }) {
         <form action={editarEstudiante} className="space-y-4">
             <h2 className="text-lg font-bold">Editar Estudiante</h2>
             <input type="hidden" name="id" value={estudiante.id} />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="col-span-2 space-y-1">
                     <label className="text-sm font-medium">Nombre completo</label>
                     <input name="nombre" required defaultValue={estudiante.nombre} className="w-full rounded-md border px-3 py-2 text-sm" />
@@ -138,8 +138,8 @@ export default async function EstudiantesPage() {
                     No hay estudiantes registrados aún.
                 </div>
             ) : (
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <table className="w-full text-sm">
+                <div className="rounded-xl border bg-card overflow-x-auto">
+                    <table className="w-full text-sm min-w-[600px]">
                         <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
                             <tr>
                                 <th className="px-4 py-3 text-left">Nombre</th>

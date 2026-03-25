@@ -78,8 +78,8 @@ export default async function GruposPage() {
                     No hay grupos registrados aún.
                 </div>
             ) : (
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <table className="w-full text-sm">
+                <div className="rounded-xl border bg-card overflow-x-auto">
+                    <table className="w-full text-sm min-w-[500px]">
                         <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
                             <tr>
                                 <th className="px-4 py-3 text-left">Nombre</th>

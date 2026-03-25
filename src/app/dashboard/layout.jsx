@@ -2,6 +2,7 @@ import { auth, signOut } from "@/src/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/src/components/ui/button";
+import { SidebarMobile } from "@/src/components/dashboard/sidebar-mobile";
 import {
     LayoutDashboard,
     Users,
@@ -27,8 +28,8 @@ export default async function DashboardLayout({ children }) {
 
     return (
         <div className="flex min-h-screen bg-muted/40 font-sans">
-            {/* Sidebar */}
-            <aside className="w-64 shrink-0 bg-background border-r flex flex-col">
+            {/* Sidebar — oculto en móvil */}
+            <aside className="hidden md:flex w-64 shrink-0 bg-background border-r flex-col">
                 {/* Logo / User */}
                 <div className="p-5 border-b space-y-1">
                     <div className="flex items-center gap-3">
@@ -74,7 +75,8 @@ export default async function DashboardLayout({ children }) {
 
             {/* Main content */}
             <div className="flex-1 flex flex-col min-w-0">
-                <main className="flex-1 p-6 lg:p-8">
+                <SidebarMobile isAdmin={isAdmin} userName={session.user?.name} userRole={session.user?.role} />
+                <main className="flex-1 p-4 md:p-6 lg:p-8">
                     {children}
                 </main>
             </div>
