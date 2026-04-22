@@ -1,4 +1,4 @@
-import { signIn } from "@/src/auth";
+import { socialLogin } from "@/src/actions/auth-actions";
 
 const GoogleIcon = () => (
     <svg className="h-4 w-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -24,10 +24,7 @@ const DiscordIcon = () => (
 export const Social = () => {
     return (
         <div className="grid grid-cols-3 w-full gap-2">
-            <form action={async () => {
-                "use server";
-                await signIn("google", { redirectTo: "/dashboard" });
-            }}>
+            <form action={socialLogin.bind(null, "google")}>
                 <button
                     type="submit"
                     className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -37,10 +34,7 @@ export const Social = () => {
                 </button>
             </form>
 
-            <form action={async () => {
-                "use server";
-                await signIn("github", { redirectTo: "/dashboard" });
-            }}>
+            <form action={socialLogin.bind(null, "github")}>
                 <button
                     type="submit"
                     className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -50,10 +44,7 @@ export const Social = () => {
                 </button>
             </form>
 
-            <form action={async () => {
-                "use server";
-                await signIn("discord", { redirectTo: "/dashboard" });
-            }}>
+            <form action={socialLogin.bind(null, "discord")}>
                 <button
                     type="submit"
                     className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
