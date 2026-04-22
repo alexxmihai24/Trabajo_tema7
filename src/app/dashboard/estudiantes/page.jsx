@@ -10,8 +10,12 @@ export const metadata = { title: "Estudiantes" };
 async function EstudianteFormCreate() {
     const grupos = await db.grupo.findMany({ select: { id: true, nombre: true } });
     const asignaturas = await db.asignatura.findMany({ select: { id: true, nombre: true } });
+    async function crear(formData) {
+        "use server";
+        await crearEstudiante(null, formData);
+    }
     return (
-        <form action={crearEstudiante} className="space-y-4">
+        <form action={crear} className="space-y-4">
             <h2 className="text-lg font-bold">Nuevo Estudiante</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="col-span-2 space-y-1">
@@ -60,8 +64,12 @@ async function EstudianteFormEdit({ estudiante }) {
         ? new Date(estudiante.fechaNacimiento).toISOString().split("T")[0]
         : "";
 
+    async function editar(formData) {
+        "use server";
+        await editarEstudiante(null, formData);
+    }
     return (
-        <form action={editarEstudiante} className="space-y-4">
+        <form action={editar} className="space-y-4">
             <h2 className="text-lg font-bold">Editar Estudiante</h2>
             <input type="hidden" name="id" value={estudiante.id} />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -1,10 +1,5 @@
-"use client";
+import { signIn } from "@/src/auth";
 
-import { useTransition } from "react";
-import { Button } from "@/src/components/ui/button";
-import { socialLogin } from "@/src/actions/auth-actions";
-
-// SVG icons inline para los 3 proveedores
 const GoogleIcon = () => (
     <svg className="h-4 w-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -27,43 +22,46 @@ const DiscordIcon = () => (
 );
 
 export const Social = () => {
-    const [isPending, startTransition] = useTransition();
-
-    const handleSocialLogin = (provider) => {
-        startTransition(() => {
-            socialLogin(provider);
-        });
-    };
-
     return (
         <div className="grid grid-cols-3 w-full gap-2">
-            <Button
-                className="w-full gap-1.5"
-                variant="outline"
-                onClick={() => handleSocialLogin("google")}
-                disabled={isPending}
-            >
-                <GoogleIcon />
-                <span className="hidden sm:inline text-xs">Google</span>
-            </Button>
-            <Button
-                className="w-full gap-1.5"
-                variant="outline"
-                onClick={() => handleSocialLogin("github")}
-                disabled={isPending}
-            >
-                <GithubIcon />
-                <span className="hidden sm:inline text-xs">Github</span>
-            </Button>
-            <Button
-                className="w-full gap-1.5"
-                variant="outline"
-                onClick={() => handleSocialLogin("discord")}
-                disabled={isPending}
-            >
-                <DiscordIcon />
-                <span className="hidden sm:inline text-xs">Discord</span>
-            </Button>
+            <form action={async () => {
+                "use server";
+                await signIn("google", { redirectTo: "/dashboard" });
+            }}>
+                <button
+                    type="submit"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                >
+                    <GoogleIcon />
+                    <span className="hidden sm:inline text-xs">Google</span>
+                </button>
+            </form>
+
+            <form action={async () => {
+                "use server";
+                await signIn("github", { redirectTo: "/dashboard" });
+            }}>
+                <button
+                    type="submit"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                >
+                    <GithubIcon />
+                    <span className="hidden sm:inline text-xs">Github</span>
+                </button>
+            </form>
+
+            <form action={async () => {
+                "use server";
+                await signIn("discord", { redirectTo: "/dashboard" });
+            }}>
+                <button
+                    type="submit"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                >
+                    <DiscordIcon />
+                    <span className="hidden sm:inline text-xs">Discord</span>
+                </button>
+            </form>
         </div>
     );
 };

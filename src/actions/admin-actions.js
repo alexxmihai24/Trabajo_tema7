@@ -44,7 +44,7 @@ export async function toggleUserActive(userId, currentStatus) {
 }
 
 // Crear usuario desde el panel admin
-export async function createUser(prevState, formData) {
+export async function createUser(_prevState, formData) {
     try {
         await checkAdmin();
 
@@ -78,6 +78,40 @@ export async function createUser(prevState, formData) {
         return { success: "Usuario creado correctamente" };
     } catch (error) {
         return { error: "Error al crear el usuario" };
+    }
+}
+
+// Editar usuario (nombre, email, rol)
+export async function editUser(_prevState, formData) {
+    try {
+        await checkAdmin();
+
+        const userId = formData.get("userId");
+        const name = formData.get("name");
+        const email = formData.get("email");
+        const role = formData.get("role");
+
+        if (!userId || !name || !email) {
+            return { error: "Nombre y email son obligatorios" };
+        }
+
+        const existing = await db.user.findFirst({
+            where: { email, NOT: { id: userId } },
+        });
+        if (existing) {
+            return { error: "El email ya está en uso por otro usuario" };
+        }
+
+        await db.user.update({
+            where: { id: userId },
+            data: { name, email, role },
+        });
+
+        revalidatePath("/dashboard");
+        revalidatePath("/admin");
+        return { success: "Usuario actualizado correctamente" };
+    } catch (error) {
+        return { error: "Error al actualizar el usuario" };
     }
 }
 

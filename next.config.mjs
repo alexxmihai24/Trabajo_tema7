@@ -10,6 +10,10 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'avatars.githubusercontent.com', // GitHub User Images
             },
+            {
+                protocol: 'https',
+                hostname: 'cdn.discordapp.com', // Discord User Images
+            },
         ],
     },
 };
