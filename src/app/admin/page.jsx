@@ -1,8 +1,9 @@
-import { auth, signOut } from "@/src/auth";
+import { auth } from "@/src/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/src/lib/prisma";
 import { Button } from "@/src/components/ui/button";
 import { AdminPanel } from "@/src/components/dashboard/admin-panel";
+import { signOutAction } from "@/src/actions/auth-actions";
 
 export const metadata = {
     title: "Panel de Administración",
@@ -34,10 +35,7 @@ export default async function AdminPage() {
                             <a href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                                 ← Dashboard
                             </a>
-                            <form action={async () => {
-                                "use server";
-                                await signOut({ redirectTo: "/" });
-                            }}>
+                            <form action={signOutAction}>
                                 <Button type="submit" variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
                                     Cerrar Sesión
                                 </Button>

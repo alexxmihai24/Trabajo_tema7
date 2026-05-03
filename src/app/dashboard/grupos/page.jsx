@@ -113,10 +113,7 @@ export default async function GruposPage() {
                                             }>
                                                 <GrupoFormEdit grupo={g} />
                                             </Modal>
-                                            <form action={async () => {
-                                                "use server";
-                                                await eliminarGrupo(g.id);
-                                            }}>
+                                            <form action={eliminarGrupo.bind(null, g.id)}>
                                                 <Button size="icon" variant="destructive" className="h-7 w-7" type="submit">
                                                     <Trash2 className="h-3.5 w-3.5" />
                                                 </Button>

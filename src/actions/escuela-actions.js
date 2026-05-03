@@ -2,6 +2,7 @@
 
 import { db } from "@/src/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { auth } from "@/src/auth";
 
 async function checkAdmin() {
@@ -20,10 +21,10 @@ export async function crearGrupo(prevState, formData) {
         if (!nombre || !tutor || !aula) return { error: "Todos los campos son obligatorios" };
         await db.grupo.create({ data: { nombre, tutor, aula } });
         revalidatePath("/dashboard/grupos");
-        return { success: "Grupo creado" };
     } catch (e) {
         return { error: e.message || "Error al crear grupo" };
     }
+    redirect("/dashboard/grupos");
 }
 
 export async function eliminarGrupo(id) {
@@ -31,10 +32,10 @@ export async function eliminarGrupo(id) {
         await checkAdmin();
         await db.grupo.delete({ where: { id } });
         revalidatePath("/dashboard/grupos");
-        return { success: "Grupo eliminado" };
     } catch (e) {
         return { error: "Error al eliminar grupo" };
     }
+    redirect("/dashboard/grupos");
 }
 
 export async function editarGrupo(prevState, formData) {
@@ -46,10 +47,10 @@ export async function editarGrupo(prevState, formData) {
         const aula = formData.get("aula");
         await db.grupo.update({ where: { id }, data: { nombre, tutor, aula } });
         revalidatePath("/dashboard/grupos");
-        return { success: "Grupo actualizado" };
     } catch (e) {
         return { error: "Error al actualizar grupo" };
     }
+    redirect("/dashboard/grupos");
 }
 
 // ─── ASIGNATURAS ──────────────────────────────────────
@@ -63,10 +64,10 @@ export async function crearAsignatura(prevState, formData) {
         if (!nombre || !horasSemana) return { error: "Nombre y horas son obligatorios" };
         await db.asignatura.create({ data: { nombre, profesor, horasSemana } });
         revalidatePath("/dashboard/asignaturas");
-        return { success: "Asignatura creada" };
     } catch (e) {
         return { error: "Error al crear asignatura" };
     }
+    redirect("/dashboard/asignaturas");
 }
 
 export async function eliminarAsignatura(id) {
@@ -74,10 +75,10 @@ export async function eliminarAsignatura(id) {
         await checkAdmin();
         await db.asignatura.delete({ where: { id } });
         revalidatePath("/dashboard/asignaturas");
-        return { success: "Asignatura eliminada" };
     } catch (e) {
         return { error: "Error al eliminar asignatura" };
     }
+    redirect("/dashboard/asignaturas");
 }
 
 export async function editarAsignatura(prevState, formData) {
@@ -89,10 +90,10 @@ export async function editarAsignatura(prevState, formData) {
         const horasSemana = Number(formData.get("horasSemana"));
         await db.asignatura.update({ where: { id }, data: { nombre, profesor, horasSemana } });
         revalidatePath("/dashboard/asignaturas");
-        return { success: "Asignatura actualizada" };
     } catch (e) {
         return { error: "Error al actualizar asignatura" };
     }
+    redirect("/dashboard/asignaturas");
 }
 
 // ─── ESTUDIANTES ──────────────────────────────────────
@@ -114,10 +115,10 @@ export async function crearEstudiante(prevState, formData) {
             },
         });
         revalidatePath("/dashboard/estudiantes");
-        return { success: "Estudiante creado" };
     } catch (e) {
         return { error: "Error al crear estudiante" };
     }
+    redirect("/dashboard/estudiantes");
 }
 
 export async function eliminarEstudiante(id) {
@@ -125,10 +126,10 @@ export async function eliminarEstudiante(id) {
         await checkAdmin();
         await db.estudiante.delete({ where: { id } });
         revalidatePath("/dashboard/estudiantes");
-        return { success: "Estudiante eliminado" };
     } catch (e) {
         return { error: "Error al eliminar estudiante" };
     }
+    redirect("/dashboard/estudiantes");
 }
 
 export async function editarEstudiante(prevState, formData) {
@@ -140,22 +141,16 @@ export async function editarEstudiante(prevState, formData) {
         const fechaNacimiento = new Date(formData.get("fechaNacimiento"));
         const grupoId = formData.get("grupoId") ? Number(formData.get("grupoId")) : null;
         const asignaturaIds = formData.getAll("asignaturaIds").map(Number).filter(Boolean);
-
         await db.estudiante.update({
             where: { id },
             data: {
-                nombre,
-                tutorLegal,
-                fechaNacimiento,
-                grupoId,
-                asignaturas: {
-                    set: asignaturaIds.map((aid) => ({ id: aid })),
-                },
+                nombre, tutorLegal, fechaNacimiento, grupoId,
+                asignaturas: { set: asignaturaIds.map((aid) => ({ id: aid })) },
             },
         });
         revalidatePath("/dashboard/estudiantes");
-        return { success: "Estudiante actualizado" };
     } catch (e) {
         return { error: "Error al actualizar estudiante" };
     }
+    redirect("/dashboard/estudiantes");
 }

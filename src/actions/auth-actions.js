@@ -1,6 +1,6 @@
 "use server";
 
-import { signIn } from "@/src/auth";
+import { signIn, signOut } from "@/src/auth";
 import { db } from "@/src/lib/prisma";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
@@ -58,4 +58,8 @@ export async function register(prevState, formData) {
 
 export async function socialLogin(provider) {
     await signIn(provider, { redirectTo: "/dashboard" });
+}
+
+export async function signOutAction() {
+    await signOut({ redirectTo: "/" });
 }

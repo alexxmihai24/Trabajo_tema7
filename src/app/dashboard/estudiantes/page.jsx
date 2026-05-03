@@ -187,10 +187,7 @@ export default async function EstudiantesPage() {
                                                 }>
                                                     <EstudianteFormEdit estudiante={e} />
                                                 </Modal>
-                                                <form action={async () => {
-                                                    "use server";
-                                                    await eliminarEstudiante(e.id);
-                                                }}>
+                                                <form action={eliminarEstudiante.bind(null, e.id)}>
                                                     <Button size="icon" variant="destructive" className="h-7 w-7" type="submit">
                                                         <Trash2 className="h-3.5 w-3.5" />
                                                     </Button>

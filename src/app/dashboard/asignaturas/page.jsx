@@ -103,10 +103,7 @@ export default async function AsignaturasPage() {
                                         }>
                                             <AsignaturaFormEdit asignatura={a} />
                                         </Modal>
-                                        <form action={async () => {
-                                            "use server";
-                                            await eliminarAsignatura(a.id);
-                                        }}>
+                                        <form action={eliminarAsignatura.bind(null, a.id)}>
                                             <Button size="icon" variant="destructive" className="h-7 w-7" type="submit">
                                                 <Trash2 className="h-3.5 w-3.5" />
                                             </Button>
