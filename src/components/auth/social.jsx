@@ -1,3 +1,5 @@
+"use client";
+
 import { socialLogin } from "@/src/actions/auth-actions";
 
 const GoogleIcon = () => (

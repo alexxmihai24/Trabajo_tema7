@@ -116,6 +116,7 @@ function EditUserForm({ user, onClose }) {
 function UserRow({ user }) {
     const [isPending, startTransition] = useTransition();
     const [showEdit, setShowEdit] = useState(false);
+    const [role, setRole] = useState(user.role);
 
     const handleToggle = () =>
         startTransition(() => toggleUserActive(user.id, user.active));
@@ -127,6 +128,7 @@ function UserRow({ user }) {
 
     const handleRoleChange = (e) => {
         const newRole = e.target.value;
+        setRole(newRole);
         startTransition(() => changeUserRole(user.id, newRole));
     };
 
@@ -137,7 +139,7 @@ function UserRow({ user }) {
                 <td className="px-4 py-3 text-sm">{user.email}</td>
                 <td className="px-4 py-3">
                     <select
-                        defaultValue={user.role}
+                        value={role}
                         onChange={handleRoleChange}
                         disabled={isPending}
                         className="rounded border border-input bg-background px-2 py-1 text-xs"

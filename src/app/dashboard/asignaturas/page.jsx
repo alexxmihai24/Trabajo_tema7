@@ -8,12 +8,8 @@ import { crearAsignatura, eliminarAsignatura, editarAsignatura } from "@/src/act
 export const metadata = { title: "Asignaturas" };
 
 function AsignaturaFormCreate() {
-    async function crear(formData) {
-        "use server";
-        await crearAsignatura(null, formData);
-    }
     return (
-        <form action={crear} className="space-y-4">
+        <form action={crearAsignatura.bind(null, null)} className="space-y-4">
             <h2 className="text-lg font-bold">Nueva Asignatura</h2>
             <div className="space-y-2">
                 <label className="text-sm font-medium">Nombre</label>
@@ -33,12 +29,8 @@ function AsignaturaFormCreate() {
 }
 
 function AsignaturaFormEdit({ asignatura }) {
-    async function editar(formData) {
-        "use server";
-        await editarAsignatura(null, formData);
-    }
     return (
-        <form action={editar} className="space-y-4">
+        <form action={editarAsignatura.bind(null, null)} className="space-y-4">
             <h2 className="text-lg font-bold">Editar Asignatura</h2>
             <input type="hidden" name="id" value={asignatura.id} />
             <div className="space-y-2">

@@ -8,12 +8,8 @@ import { crearGrupo, eliminarGrupo, editarGrupo } from "@/src/actions/escuela-ac
 export const metadata = { title: "Grupos" };
 
 function GrupoFormCreate() {
-    async function crear(formData) {
-        "use server";
-        await crearGrupo(null, formData);
-    }
     return (
-        <form action={crear} className="space-y-4">
+        <form action={crearGrupo.bind(null, null)} className="space-y-4">
             <h2 className="text-lg font-bold">Nuevo Grupo</h2>
             <div className="space-y-2">
                 <label className="text-sm font-medium">Nombre del grupo</label>
@@ -33,12 +29,8 @@ function GrupoFormCreate() {
 }
 
 function GrupoFormEdit({ grupo }) {
-    async function editar(formData) {
-        "use server";
-        await editarGrupo(null, formData);
-    }
     return (
-        <form action={editar} className="space-y-4">
+        <form action={editarGrupo.bind(null, null)} className="space-y-4">
             <h2 className="text-lg font-bold">Editar Grupo</h2>
             <input type="hidden" name="id" value={grupo.id} />
             <div className="space-y-2">
